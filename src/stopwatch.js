@@ -8,10 +8,6 @@ function Stopwatch() {
     let [minutes, setMinutes] = useState(0)
     let [hours, setHours] = useState(0)
 
-    let [inputH, setInputH] = useState(0)
-    let [inputM, setInputM] = useState(0)
-    let [inputS, setInputS] = useState(0)
-
     let [isTicking, setIsTicking] = useState(false)
     let [timerSet, SetTimerSet] = useState(false)
 
@@ -23,6 +19,7 @@ function Stopwatch() {
 
     const reset = () => {
         clearInterval(intervalRef)
+
         setIsTicking(false)
         SetTimerSet(false)
 
@@ -30,14 +27,11 @@ function Stopwatch() {
         setMinutes(0)
         setHours(0)
 
-        setInputH(0)
-        setInputM(0)
-        setInputS(0)
+        setTotalSeconds(0)
 
         HRef.current.value = '00'
         MRef.current.value = '00'
         SRef.current.value = '00'
-
     }
 
     const stopHandler = () => {
@@ -48,14 +42,14 @@ function Stopwatch() {
     const startHandler = () => {
         stopHandler()
 
-        if (totalSeconds > 0) {
+        if (totalSeconds >= 0) {
             if (!timerSet) {
                 SetTimerSet(true)
             }
 
             setIsTicking(true)
             const sec = setInterval(() => {
-                setTotalSeconds((prev) => prev - 1)
+                setTotalSeconds((prev) => prev + 1)
             }, 1000);
 
             setIntervalRef(sec)
@@ -63,12 +57,6 @@ function Stopwatch() {
             return () => clearInterval(sec)
         }
     }
-
-    useEffect(() => {
-        let sum = (isNaN(inputH) ? 0 : parseInt(inputH)) * 3600 + (isNaN(inputM) ? 0 : parseInt(inputM)) * 60 + (isNaN(inputS) ? 0 : parseInt(inputS))
-        console.log(sum)
-        setTotalSeconds(sum)
-    }, [inputH, inputM, inputS])
 
     useEffect(() => {
         let h = Math.floor(totalSeconds / 3600)
@@ -79,7 +67,7 @@ function Stopwatch() {
         setMinutes(m)
         setSeconds(s)
 
-        if (totalSeconds <= 0) {
+        if (totalSeconds >= 359999) {
             stopHandler()
         }
     }, [totalSeconds])
@@ -89,9 +77,9 @@ function Stopwatch() {
     return (
         <div className="container">
             <div className="input-container">
-                <input ref={HRef} id="hour" type="number" disabled={timerSet} min={0} max={99} onInput={(e) => e.target.value.length > 2 ? e.target.value = e.target.value.slice(0, 2) : e.target.value} defaultValue={'00'} {...(timerSet ? { value: hours < 10 ? '0' + hours : hours } : {})} onChange={(e) => { setInputH(e.target.valueAsNumber) }}></input>
-                <input ref={MRef} id="minute" type="number" disabled={timerSet} min={0} max={59} onInput={(e) => e.target.value.length > 2 ? e.target.value = e.target.value.slice(0, 2) : e.target.value} defaultValue={'00'} {...(timerSet ? { value: minutes < 10 ? '0' + minutes : minutes } : {})} onChange={(e) => { setInputM(e.target.valueAsNumber) }}></input>
-                <input ref={SRef} id="second" type="number" disabled={timerSet} min={0} max={59} onInput={(e) => e.target.value.length > 2 ? e.target.value = e.target.value.slice(0, 2) : e.target.value} defaultValue={'00'} {...(timerSet ? { value: seconds < 10 ? '0' + seconds : seconds } : {})} onChange={(e) => { setInputS(e.target.valueAsNumber) }}></input>
+                <input ref={HRef} id="hour" type="number" disabled={true} min={0} max={99} {...(timerSet ? { value: hours < 10 ? '0' + hours : hours } : { value: '00' })}></input>
+                <input ref={MRef} id="minute" type="number" disabled={true} min={0} max={59} {...(timerSet ? { value: minutes < 10 ? '0' + minutes : minutes } : { value: '00' })}></input>
+                <input ref={SRef} id="second" type="number" disabled={true} min={0} max={59} {...(timerSet ? { value: seconds < 10 ? '0' + seconds : seconds } : { value: '00' })}></input>
             </div>
 
             <div className="button" onClick={() => {
